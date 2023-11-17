@@ -36,9 +36,9 @@ def create_network(n_classes):
         layer.trainable = False
 
     x = network_base.output
-    x = layers.GlobalAveragePooling2D()(x)
-    x = layers.Dense(128, activation='relu')(x)
-    predictions = layers.Dense(n_classes, activation='softmax')(x)
+    x = layers.GlobalAveragePooling2D(name="GiraffePooling")(x)
+    x = layers.Dense(128, activation='relu', name="GiraffeDense")(x)
+    predictions = layers.Dense(n_classes, activation='softmax', name="GiraffeOut")(x)
     model = Model(network_base.input, predictions)
 
     optimizer = keras.optimizers.legacy.Adam()
@@ -62,9 +62,4 @@ model = create_network(3)
 history = train(model, train_gen, test_gen)
 
 # architecture and weights to HDF5
-model.save('models/model.h5')
-
-# architecture to JSON, weights to HDF5
-model.save_weights('models/weights.h5')
-with open('models/architecture.json', 'w') as f:
-    f.write(model.to_json())
+model.save('models/model1.h5')
