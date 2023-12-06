@@ -27,10 +27,10 @@ def run_model(filepath, model_version):
     batch = np.stack([img_array])
 
     preds = model.predict(batch)
-    print(preds[0,1])
 
     with open("out.txt","w") as f:
-        f.write(f"Giraffe Score: {preds[0,1]}")
+        f.write(f"Giraffe Score: {preds[0,0]}")
+        print(preds)
 
     last_conv_layer_name = "conv5_block3_out"
 

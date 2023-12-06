@@ -5,27 +5,32 @@ from keras.applications import ResNet50
 from keras.applications.resnet50 import preprocess_input
 from keras import Model, layers
 
+import sys
+
 def load_data(class_mode:str='categorical'):
     train_datagen = ImageDataGenerator(
-        shear_range=10,
-        zoom_range=0.2,
-        horizontal_flip=True,
-        preprocessing_function=preprocess_input)
+        # shear_range=10,
+        # zoom_range=0.2,
+       # horizontal_flip=True,
+        preprocessing_function=preprocess_input,
+        validation_split = 0.3)
 
     train_generator = train_datagen.flow_from_directory(
-        'images/data/train',
-        batch_size=32,
+        'final_training/',
+        batch_size=2,
         class_mode=class_mode,
+        subset='training',
+        shuffle=True,
         target_size=(224,224))
+    print(train_generator.class_indices)
+    validation_generator = train_datagen.flow_from_directory(batch_size=2,
+                                                 directory='final_training',
+                                                 shuffle=True,
+                                                 target_size=(224, 224), 
+                                                 subset="validation",
+                                                 class_mode=class_mode)
 
-    validation_datagen = ImageDataGenerator(
-        preprocessing_function=preprocess_input)
 
-    validation_generator = validation_datagen.flow_from_directory(
-        'images/data/test',
-        shuffle=False,
-        class_mode=class_mode,
-        target_size=(224,224))
     
     return train_generator, validation_generator
 
@@ -51,15 +56,17 @@ def create_network(n_classes):
 def train(model, train_gen, test_gen):
     history = model.fit(
         train_gen,
-        epochs=3,
+        epochs=10,
         validation_data=test_gen
     )
     return history
+# train_gen = load_data()
+if __name__=="__main__":
+    model_iteration = sys.argv[1]
+    train_gen, test_gen = load_data()
+    model = create_network(2)
 
-train_gen, test_gen = load_data()
-model = create_network(3)
+    history = train(model, train_gen, test_gen)
 
-history = train(model, train_gen, test_gen)
-
-# architecture and weights to HDF5
-model.save('models/model1.h5')
+    # architecture and weights to HDF5
+    model.save(f'models/model{model_iteration}.h5')
